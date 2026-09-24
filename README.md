@@ -38,7 +38,7 @@ La sesión de prueba abre la Bienvenida con el botón **Instalar BullOS**.
 
 ## ¿Por qué BullOS?
 
-Las distros "gamer" rolling release (como CachyOS) son rapidísimas, pero se rompen seguido
+Las distros "gamer" rolling release son rapidísimas, pero se rompen seguido
 y no siempre corren todo lo que necesitás. BullOS toma el camino opuesto:
 
 | | Distros gaming rolling | **BullOS** |
