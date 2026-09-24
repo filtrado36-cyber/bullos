@@ -77,7 +77,7 @@ dentro de Docker, así que se puede construir desde macOS, Windows o Linux.
 **Requisitos:** Docker Desktop (con 4 GB de RAM o más) y unos 20 GB de disco libre.
 
 ```sh
-git clone https://github.com/<usuario>/bullos.git
+git clone https://github.com/filtrado36-cyber/bullos.git
 cd bullos
 ./build.sh              # genera out/bullos-amd64.hybrid.iso (30-60 minutos)
 ```
