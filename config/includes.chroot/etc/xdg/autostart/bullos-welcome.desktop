@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Bienvenida a BullOS
+Exec=bullos-welcome --autostart
+Icon=/usr/share/pixmaps/bullos.png
+X-KDE-autostart-phase=2
+OnlyShowIn=KDE;

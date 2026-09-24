@@ -1,0 +1,13 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "type": "file",
+        "source": "/usr/share/bullos/fastfetch-logo.txt",
+        "color": { "1": "38;2;243;230;211", "2": "38;2;224;118;43", "3": "38;2;22;17;13" }
+    },
+    "display": { "color": { "keys": "38;2;224;118;43" } },
+    "modules": [
+        "title", "separator", "os", "kernel", "uptime", "packages", "shell",
+        "de", "wm", "terminal", "cpu", "gpu", "memory", "swap", "disk", "break", "colors"
+    ]
+}

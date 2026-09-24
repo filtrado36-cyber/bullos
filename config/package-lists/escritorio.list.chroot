@@ -1,0 +1,108 @@
+# ---------- Escritorio: KDE Plasma 6 ----------
+kde-plasma-desktop
+kwin-wayland
+sddm
+sddm-theme-breeze
+kde-config-sddm
+plasma-nm
+plasma-pa
+plasma-discover
+plasma-discover-backend-flatpak
+kscreen
+powerdevil
+bluedevil
+print-manager
+kde-config-gtk-style
+breeze-gtk-theme
+dolphin
+konsole
+kate
+ark
+gwenview
+okular
+kde-spectacle
+kcalc
+partitionmanager
+plymouth
+plymouth-themes
+
+# ---------- Aspecto BullOS ----------
+desktop-base
+papirus-icon-theme
+bibata-cursor-theme
+fonts-inter
+fonts-jetbrains-mono
+fonts-noto-color-emoji
+fastfetch
+
+# ---------- Sistema y rendimiento ----------
+sudo
+locales
+keyboard-configuration
+zram-tools
+earlyoom
+pciutils
+network-manager
+bluez
+pipewire-audio
+wireplumber
+pavucontrol-qt
+
+# ---------- Firmware y microcódigo ----------
+firmware-linux
+firmware-iwlwifi
+firmware-amd-graphics
+firmware-misc-nonfree
+firmware-realtek
+firmware-sof-signed
+intel-microcode
+amd64-microcode
+
+# ---------- Gaming ----------
+mesa-vulkan-drivers
+vulkan-tools
+gamemode
+mangohud
+steam-devices
+nvidia-detect
+
+# ---------- Compatibilidad ----------
+flatpak
+distrobox
+podman
+libfuse2t64
+
+# ---------- Multimedia e impresión ----------
+gstreamer1.0-libav
+gstreamer1.0-plugins-good
+gstreamer1.0-plugins-bad
+gstreamer1.0-plugins-ugly
+ffmpeg
+vlc
+cups
+printer-driver-gutenprint
+hplip
+
+# ---------- Desarrollo (lo básico; el kit completo se instala desde la Bienvenida) ----------
+git
+curl
+wget
+gnupg
+python3-venv
+btop
+
+# ---------- Aplicaciones ----------
+firefox-esr
+firefox-esr-l10n-es-es
+libreoffice-writer
+libreoffice-calc
+libreoffice-l10n-es
+libreoffice-kf6
+hunspell-es
+
+# ---------- Herramientas BullOS ----------
+python3-pyqt6
+
+# ---------- Instalador ----------
+calamares
+calamares-settings-debian

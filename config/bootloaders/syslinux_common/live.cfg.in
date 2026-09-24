@@ -1,0 +1,12 @@
+label live-@FLAVOUR@
+	menu label ^Probar o instalar BullOS
+	menu default
+	linux @LINUX@
+	initrd @INITRD@
+	append @APPEND_LIVE@
+
+label live-@FLAVOUR@-failsafe
+	menu label BullOS (modo ^seguro)
+	linux @LINUX@
+	initrd @INITRD@
+	append @APPEND_LIVE_FAILSAFE@

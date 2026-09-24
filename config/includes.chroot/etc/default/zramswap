@@ -1,0 +1,4 @@
+# Swap comprimida en RAM (zstd): más memoria efectiva sin tocar el disco
+ALGO=zstd
+PERCENT=50
+PRIORITY=100

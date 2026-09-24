@@ -1,0 +1,124 @@
+#!/bin/sh
+# Acciones de BullOS. La app de Bienvenida las ejecuta en una Konsole para que
+# el usuario vea el progreso; también se pueden usar a mano: bullos-tools <acción>
+set -e
+CODENAME=trixie
+
+titulo() { printf '\n\033[1;38;2;224;118;43m==> %s\033[0m\n\n' "$*"; }
+listo()  { printf '\n\033[1;32mListo.\033[0m Podés cerrar esta ventana.\n'; }
+
+flatpak_app() {
+    titulo "Instalando $1 desde Flathub"
+    flatpak install -y --noninteractive flathub "$2"
+    listo
+}
+
+# Nivel de instrucciones del procesador (x86-64-v2/v3) para elegir el kernel XanMod
+nivel_cpu() {
+    if /lib64/ld-linux-x86-64.so.2 --help 2>/dev/null | grep -q 'x86-64-v3 (supported'; then echo 3
+    elif /lib64/ld-linux-x86-64.so.2 --help 2>/dev/null | grep -q 'x86-64-v2 (supported'; then echo 2
+    else echo 1; fi
+}
+
+case "$1" in
+actualizar)
+    titulo "Actualizando el sistema"
+    sudo apt-get update
+    sudo apt-get full-upgrade -y
+    titulo "Actualizando aplicaciones Flatpak"
+    flatpak update -y --noninteractive
+    listo ;;
+
+steam)    flatpak_app Steam         com.valvesoftware.Steam ;;
+lutris)   flatpak_app Lutris        net.lutris.Lutris ;;
+heroic)   flatpak_app "Heroic (Epic, GOG, Amazon)" com.heroicgameslauncher.hgl ;;
+protonup) flatpak_app ProtonUp-Qt   net.davidotek.pupgui2 ;;
+bottles)  flatpak_app "Bottles (programas de Windows)" com.usebottles.bottles ;;
+discord)  flatpak_app Discord       com.discordapp.Discord ;;
+obs)      flatpak_app "OBS Studio"  com.obsproject.Studio ;;
+
+nvidia)
+    titulo "Instalando el driver de NVIDIA"
+    echo "Si tu equipo usa Secure Boot, al terminar se te pedirá una contraseña"
+    echo "para registrar la clave del driver (MOK). Anotala: la vas a necesitar"
+    echo "una sola vez en el próximo reinicio."
+    echo
+    sudo apt-get update
+    sudo apt-get install -y linux-headers-amd64 nvidia-driver firmware-misc-nonfree
+    titulo "Reiniciá la computadora para usar el driver"
+    listo ;;
+
+kernel-backports)
+    titulo "Instalando el kernel más nuevo de Debian (backports)"
+    echo "Es un kernel oficial y firmado de Debian: funciona con Secure Boot."
+    echo "Mejora el soporte de hardware reciente (GPUs y CPUs nuevas)."
+    printf 'Types: deb\nURIs: http://deb.debian.org/debian\nSuites: %s-backports\nComponents: main contrib non-free non-free-firmware\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg\n' "$CODENAME" \
+        | sudo tee /etc/apt/sources.list.d/backports.sources >/dev/null
+    sudo apt-get update
+    sudo apt-get install -y -t "$CODENAME-backports" linux-image-amd64 linux-headers-amd64
+    titulo "Reiniciá la computadora para usar el nuevo kernel"
+    listo ;;
+
+kernel-xanmod)
+    NIVEL=$(nivel_cpu)
+    if [ "$NIVEL" -lt 2 ]; then
+        echo "Tu procesador no es compatible con los kernels XanMod actuales."; exit 1
+    fi
+    titulo "Instalando el kernel XanMod (x86-64-v$NIVEL)"
+    echo "XanMod es un kernel optimizado para juegos y baja latencia, de un proyecto externo."
+    echo "IMPORTANTE: no está firmado. Si tu equipo usa Secure Boot, tenés que desactivarlo"
+    echo "en la BIOS/UEFI; si no, la computadora no va a arrancar con este kernel."
+    echo "El kernel de Debian queda instalado y lo podés elegir desde el menú de GRUB."
+    printf '\n¿Continuar? [s/N] '; read -r r
+    case "$r" in s|S|si|sí) ;; *) echo "Cancelado."; exit 0 ;; esac
+    sudo install -d -m 0755 /etc/apt/keyrings
+    wget -qO - https://dl.xanmod.org/archive.key | sudo gpg --dearmor --yes -o /etc/apt/keyrings/xanmod-archive-keyring.gpg
+    echo "deb [signed-by=/etc/apt/keyrings/xanmod-archive-keyring.gpg] http://deb.xanmod.org $CODENAME main" \
+        | sudo tee /etc/apt/sources.list.d/xanmod-release.list >/dev/null
+    sudo apt-get update
+    sudo apt-get install -y "linux-xanmod-x64v$NIVEL"
+    titulo "Reiniciá la computadora para usar XanMod"
+    listo ;;
+
+devkit)
+    titulo "Instalando el kit de desarrollo"
+    sudo apt-get update
+    sudo apt-get install -y build-essential gdb cmake pkg-config python3-pip pipx \
+        nodejs npm docker.io docker-compose docker-buildx
+    sudo usermod -aG docker "$USER"
+    echo "Para usar Docker sin sudo, cerrá sesión y volvé a entrar."
+    listo ;;
+
+vscode)
+    titulo "Instalando Visual Studio Code (repositorio oficial de Microsoft)"
+    sudo install -d -m 0755 /etc/apt/keyrings
+    wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor --yes -o /etc/apt/keyrings/packages.microsoft.gpg
+    printf 'Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\nArchitectures: amd64\nSigned-By: /etc/apt/keyrings/packages.microsoft.gpg\n' \
+        | sudo tee /etc/apt/sources.list.d/vscode.sources >/dev/null
+    sudo apt-get update
+    sudo apt-get install -y code
+    listo ;;
+
+caja-arch)
+    titulo "Creando un contenedor de Arch Linux (acceso a AUR y paquetes de Arch)"
+    distrobox create -Y -n arch -i docker.io/library/archlinux:latest
+    distrobox enter arch -- sudo pacman -Syu --noconfirm base-devel git
+    echo
+    echo "Entrá con:  distrobox enter arch"
+    echo "Y exportá apps al menú de BullOS con:  distrobox-export --app <programa>"
+    listo ;;
+
+caja-ubuntu)
+    titulo "Creando un contenedor de Ubuntu 24.04"
+    distrobox create -Y -n ubuntu -i docker.io/library/ubuntu:24.04
+    distrobox enter ubuntu -- true
+    echo
+    echo "Entrá con:  distrobox enter ubuntu"
+    listo ;;
+
+*)
+    echo "Uso: bullos-tools <acción>"
+    echo "Acciones: actualizar steam lutris heroic protonup bottles discord obs nvidia"
+    echo "          kernel-backports kernel-xanmod devkit vscode caja-arch caja-ubuntu"
+    exit 1 ;;
+esac

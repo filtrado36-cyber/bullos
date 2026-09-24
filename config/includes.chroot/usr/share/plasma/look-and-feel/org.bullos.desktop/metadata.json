@@ -1,0 +1,13 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [{ "Name": "BullOS" }],
+        "Category": "",
+        "Description": "Aspecto de BullOS",
+        "Id": "org.bullos.desktop",
+        "License": "GPL-2.0+",
+        "Name": "BullOS",
+        "Version": "0.1"
+    },
+    "X-Plasma-APIVersion": "2"
+}

@@ -1,0 +1,28 @@
+---
+componentName:  bullos
+welcomeStyleCalamares: true
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 800px,580px
+windowPlacement: center
+strings:
+    productName:         BullOS
+    shortProductName:    BullOS
+    version:             0.1
+    shortVersion:        0.1
+    versionedName:       BullOS 0.1
+    shortVersionedName:  BullOS 0.1
+    bootloaderEntryName: BullOS
+sidebar: widget
+navigation: widget
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+    productWelcome:      "welcome.png"
+slideshow:               "show.qml"
+slideshowAPI: 2
+style:
+   SidebarBackground:    "#1E1510"
+   SidebarText:          "#F3E6D3"
+   SidebarTextCurrent:   "#FFFFFF"
+   SidebarBackgroundCurrent: "#B8551C"

@@ -1,0 +1,219 @@
+#!/usr/bin/python3
+"""Bienvenida a BullOS: instala juegos, herramientas de desarrollo y drivers con un clic."""
+
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtWidgets import (
+    QApplication, QCheckBox, QFrame, QHBoxLayout, QLabel, QPushButton,
+    QScrollArea, QTabWidget, QVBoxLayout, QWidget,
+)
+
+LOGO = "/usr/share/pixmaps/bullos.png"
+TOOLS = "/usr/lib/bullos/bullos-tools"
+CONFIG = Path.home() / ".config" / "bullos" / "welcome-hidden"
+LIVE = os.path.exists("/run/live/medium")
+ACCENT = "#E0762B"
+
+
+def has_nvidia():
+    try:
+        out = subprocess.run(["lspci"], capture_output=True, text=True).stdout
+    except OSError:
+        return False
+    return any("NVIDIA" in l and ("VGA" in l or "3D" in l) for l in out.splitlines())
+
+
+def cpu_level():
+    try:
+        out = subprocess.run(["/lib64/ld-linux-x86-64.so.2", "--help"],
+                             capture_output=True, text=True).stdout
+    except OSError:
+        return 1
+    for lvl in (3, 2):
+        if f"x86-64-v{lvl} (supported" in out:
+            return lvl
+    return 1
+
+
+def run_in_terminal(action):
+    subprocess.Popen(["konsole", "--hold", "-e", TOOLS, action])
+
+
+def launch(cmd):
+    subprocess.Popen(cmd)
+
+
+# (título, descripción, texto del botón, función)
+def gaming_items():
+    items = [
+        ("Steam", "La tienda de juegos más grande. Con Proton corre la mayoría de los juegos de Windows.",
+         "Instalar", lambda: run_in_terminal("steam")),
+        ("Heroic", "Tus juegos de Epic Games, GOG y Amazon Prime Gaming.",
+         "Instalar", lambda: run_in_terminal("heroic")),
+        ("Lutris", "Instalá juegos de Battle.net, EA, Ubisoft, emuladores y más.",
+         "Instalar", lambda: run_in_terminal("lutris")),
+        ("ProtonUp-Qt", "Instalá versiones mejoradas de Proton (GE-Proton) para más compatibilidad.",
+         "Instalar", lambda: run_in_terminal("protonup")),
+        ("Discord", "Chat de voz y texto para jugar con amigos.",
+         "Instalar", lambda: run_in_terminal("discord")),
+        ("OBS Studio", "Grabá y transmití tus partidas.",
+         "Instalar", lambda: run_in_terminal("obs")),
+    ]
+    if has_nvidia():
+        items.insert(0, ("Driver de NVIDIA", "Detectamos una placa NVIDIA. Instalá el driver oficial "
+                         "para el mejor rendimiento en juegos.",
+                         "Instalar", lambda: run_in_terminal("nvidia")))
+    return items
+
+
+def dev_items():
+    return [
+        ("Kit de desarrollo", "Compiladores (gcc, cmake), Python, Node.js, Docker y Docker Compose.",
+         "Instalar", lambda: run_in_terminal("devkit")),
+        ("Visual Studio Code", "El editor de código más usado, desde el repositorio oficial de Microsoft.",
+         "Instalar", lambda: run_in_terminal("vscode")),
+        ("Contenedor Arch Linux", "Usá paquetes de Arch y del AUR dentro de BullOS con Distrobox, "
+         "sin arriesgar la estabilidad del sistema.",
+         "Crear", lambda: run_in_terminal("caja-arch")),
+        ("Contenedor Ubuntu", "Para programas que solo se distribuyen para Ubuntu.",
+         "Crear", lambda: run_in_terminal("caja-ubuntu")),
+    ]
+
+
+def system_items():
+    lvl = cpu_level()
+    items = [
+        ("Actualizar todo", "Actualiza el sistema y las aplicaciones Flatpak.",
+         "Actualizar", lambda: run_in_terminal("actualizar")),
+        ("Centro de software", "Discover: miles de aplicaciones de Debian y Flathub.",
+         "Abrir", lambda: launch(["plasma-discover"])),
+        ("Programas de Windows", "Bottles: corré programas de Windows (.exe) de forma ordenada.",
+         "Instalar", lambda: run_in_terminal("bottles")),
+        ("Kernel más nuevo (Debian)", "Kernel oficial y firmado más reciente: mejor soporte para "
+         "hardware nuevo. Compatible con Secure Boot.",
+         "Instalar", lambda: run_in_terminal("kernel-backports")),
+    ]
+    if lvl >= 2:
+        items.append((f"Kernel XanMod (x86-64-v{lvl})", "Kernel optimizado para juegos y baja latencia. "
+                      "Avanzado: requiere desactivar Secure Boot.",
+                      "Instalar", lambda: run_in_terminal("kernel-xanmod")))
+    return items
+
+
+class Card(QFrame):
+    def __init__(self, title, desc, button, action):
+        super().__init__()
+        self.setObjectName("card")
+        lay = QHBoxLayout(self)
+        lay.setContentsMargins(16, 12, 16, 12)
+        text = QVBoxLayout()
+        t = QLabel(f"<b>{title}</b>")
+        t.setStyleSheet("font-size: 11pt;")
+        d = QLabel(desc)
+        d.setWordWrap(True)
+        d.setStyleSheet("font-size: 9pt;")
+        text.addWidget(t)
+        text.addWidget(d)
+        lay.addLayout(text, 1)
+        b = QPushButton(button)
+        b.setMinimumWidth(110)
+        b.clicked.connect(action)
+        lay.addWidget(b, 0, Qt.AlignmentFlag.AlignVCenter)
+
+
+def page(items, intro=None):
+    inner = QWidget()
+    lay = QVBoxLayout(inner)
+    lay.setSpacing(10)
+    if intro:
+        l = QLabel(intro)
+        l.setWordWrap(True)
+        lay.addWidget(l)
+    for it in items:
+        lay.addWidget(Card(*it))
+    lay.addStretch(1)
+    scroll = QScrollArea()
+    scroll.setWidgetResizable(True)
+    scroll.setFrameShape(QFrame.Shape.NoFrame)
+    scroll.setWidget(inner)
+    return scroll
+
+
+class Welcome(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Bienvenida a BullOS")
+        self.setWindowIcon(QIcon(LOGO))
+        self.resize(760, 600)
+        self.setStyleSheet(f"""
+            #card {{ border: 1px solid palette(mid); border-radius: 10px; }}
+            QPushButton {{ padding: 6px 14px; }}
+            #primary {{ background: {ACCENT}; color: white; border-radius: 6px;
+                        font-weight: bold; padding: 10px 20px; }}
+        """)
+
+        root = QVBoxLayout(self)
+        header = QHBoxLayout()
+        logo = QLabel()
+        logo.setPixmap(QPixmap(LOGO).scaled(72, 72, Qt.AspectRatioMode.KeepAspectRatio,
+                                            Qt.TransformationMode.SmoothTransformation))
+        header.addWidget(logo)
+        title = QVBoxLayout()
+        h = QLabel("Bienvenido a BullOS")
+        h.setStyleSheet(f"font-size: 20pt; font-weight: bold; color: {ACCENT};")
+        s = QLabel("Estable como Debian, listo para jugar y programar.")
+        title.addWidget(h)
+        title.addWidget(s)
+        header.addLayout(title, 1)
+        if LIVE and shutil.which("calamares-install-debian"):
+            inst = QPushButton("Instalar BullOS")
+            inst.setObjectName("primary")
+            inst.clicked.connect(lambda: launch(["calamares-install-debian"]))
+            header.addWidget(inst, 0, Qt.AlignmentFlag.AlignVCenter)
+        root.addLayout(header)
+
+        tabs = QTabWidget()
+        tabs.addTab(page(gaming_items(), "Todo se instala desde Flathub: siempre actualizado y sin "
+                         "tocar la base estable del sistema. Gamemode y MangoHud ya vienen instalados."),
+                    "🎮  Gaming")
+        tabs.addTab(page(dev_items()), "💻  Desarrollo")
+        tabs.addTab(page(system_items()), "⚙️  Sistema")
+        root.addWidget(tabs, 1)
+
+        footer = QHBoxLayout()
+        self.show_again = QCheckBox("Mostrar al iniciar sesión")
+        self.show_again.setChecked(not CONFIG.exists())
+        self.show_again.toggled.connect(self.toggle_autostart)
+        footer.addWidget(self.show_again)
+        footer.addStretch(1)
+        close = QPushButton("Cerrar")
+        close.clicked.connect(self.close)
+        footer.addWidget(close)
+        root.addLayout(footer)
+
+    def toggle_autostart(self, checked):
+        if checked:
+            CONFIG.unlink(missing_ok=True)
+        else:
+            CONFIG.parent.mkdir(parents=True, exist_ok=True)
+            CONFIG.touch()
+
+
+def main():
+    if "--autostart" in sys.argv and CONFIG.exists():
+        return
+    app = QApplication(sys.argv)
+    app.setDesktopFileName("bullos-welcome")
+    w = Welcome()
+    w.show()
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

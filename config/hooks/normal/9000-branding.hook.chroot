@@ -1,0 +1,88 @@
+#!/bin/sh
+# Identidad, tema y ajustes de BullOS. Se ejecuta dentro del chroot durante el
+# build, después de instalar los paquetes y copiar config/includes.chroot.
+set -e
+
+# ---------- Identidad del sistema ----------
+# Se desvía el archivo de base-files para que una actualización de Debian no lo pise.
+dpkg-divert --local --no-rename --add /usr/lib/os-release
+cat > /usr/lib/os-release <<'X'
+PRETTY_NAME="BullOS 0.1"
+NAME="BullOS"
+VERSION_ID="0.1"
+VERSION="0.1"
+VERSION_CODENAME=trixie
+ID=bullos
+ID_LIKE=debian
+LOGO=bullos
+X
+# live-build deja /etc/os-release como copia suelta del de Debian; lo apuntamos al
+# nuestro (Plymouth, el initramfs y KDE leen este y no el de /usr/lib).
+ln -sf ../usr/lib/os-release /etc/os-release
+cat > /etc/lsb-release <<'X'
+DISTRIB_ID=BullOS
+DISTRIB_RELEASE=0.1
+DISTRIB_CODENAME=trixie
+DISTRIB_DESCRIPTION="BullOS 0.1"
+X
+printf 'BullOS 0.1 \\n \\l\n\n' > /etc/issue
+echo "BullOS 0.1" > /etc/issue.net
+cat > /etc/motd <<'X'
+
+BullOS está basado en Debian GNU/Linux y se distribuye SIN NINGUNA GARANTÍA,
+en la medida permitida por la ley aplicable.
+X
+# Foto de perfil predeterminada: desktop-base trae el logo de Debian en /etc/skel
+dpkg-divert --local --rename --add /etc/skel/.face
+install -m 0644 /usr/share/bullos/face.png /etc/skel/.face
+
+# Ícono "bullos" (LOGO= de os-release) para Info del sistema y otras apps
+install -D -m 0644 /usr/share/pixmaps/bullos.png /usr/share/icons/hicolor/128x128/apps/bullos.png
+gtk-update-icon-cache -q /usr/share/icons/hicolor 2>/dev/null || true
+
+# ---------- Tema de desktop-base (fondos y GRUB) ----------
+T=/usr/share/desktop-base/bullos-theme
+update-alternatives --install /usr/share/desktop-base/active-theme desktop-theme $T 100
+update-alternatives --install /usr/share/images/desktop-base/desktop-background \
+    desktop-background $T/wallpaper/contents/images/1920x1080.svg 100
+update-alternatives --install /usr/share/images/desktop-base/login-background.svg \
+    desktop-login-background $T/login/background.svg 100
+update-alternatives --install /usr/share/images/desktop-base/desktop-grub.png \
+    desktop-grub $T/grub/grub-16x9.png 100 \
+    --slave /usr/share/desktop-base/grub_background.sh desktop-grub.sh $T/grub/grub_background.sh
+
+# ---------- Esquema de colores de Plasma: Breeze Oscuro con acento cobre ----------
+BD=/usr/share/color-schemes/BreezeDark.colors
+if [ -f "$BD" ]; then
+    sed -e 's/61,174,233/224,118,43/g' -e 's/29,153,243/224,118,43/g' \
+        -e 's/^Name=.*/Name=BullOS/' -e 's/^ColorScheme=.*/ColorScheme=BullOS/' \
+        "$BD" > /usr/share/color-schemes/BullOS.colors
+else
+    echo "AVISO: no se encontró $BD; BullOS usará Breeze Oscuro sin acento propio" >&2
+fi
+
+# ---------- Animación de arranque ----------
+plymouth-set-default-theme bullos
+
+# ---------- Compatibilidad: Flathub listo para usar ----------
+flatpak remote-add --if-not-exists --system flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+# ---------- Servicios ----------
+# El arranque no espera a que haya red (lo hace Plasma en segundo plano)
+systemctl disable NetworkManager-wait-online.service 2>/dev/null || true
+systemctl enable zramswap.service earlyoom.service
+
+# ---------- Bienvenida ----------
+# BullOS tiene su propia Bienvenida; la de KDE (llega como recomendación de
+# Plasma, nada depende de ella) duplicaría la ventana al iniciar sesión.
+apt-get purge -y plasma-welcome
+
+# ---------- Instalador ----------
+sed -i 's/^branding: .*/branding: bullos/' /etc/calamares/settings.conf
+sed -i -e 's/^Name=.*/Name=Instalar BullOS/' \
+       -e 's/^Comment=.*/Comment=Instalar BullOS en el disco/' \
+       -e 's|^Icon=.*|Icon=/usr/share/pixmaps/bullos.png|' \
+       /usr/share/applications/calamares-install-debian.desktop
+
+# Regenerar initramfs para incluir el tema de Plymouth
+update-initramfs -u -k all

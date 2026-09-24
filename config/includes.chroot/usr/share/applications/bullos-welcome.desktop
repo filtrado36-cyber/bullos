@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Bienvenida a BullOS
+Comment=Instalá juegos, herramientas de desarrollo y drivers
+Exec=bullos-welcome
+Icon=/usr/share/pixmaps/bullos.png
+Categories=System;Settings;
+Keywords=bullos;steam;juegos;nvidia;driver;kernel;docker;vscode;

@@ -1,0 +1,73 @@
+# Animación de arranque de BullOS: bull terrier persiguiéndose la cola.
+
+Window.SetBackgroundTopColor(0.071, 0.047, 0.035);
+Window.SetBackgroundBottomColor(0.071, 0.047, 0.035);
+
+cx = Window.GetX() + Window.GetWidth() / 2;
+cy = Window.GetY() + Window.GetHeight() / 2;
+
+perro[0] = Image("perro-1.png");
+perro[1] = Image("perro-2.png");
+perro_sprite = Sprite();
+
+titulo = Image("titulo.png");
+titulo_sprite = Sprite(titulo);
+titulo_sprite.SetPosition(cx - titulo.GetWidth() / 2, cy + 110, 1);
+
+angulo = 0;
+cuadro = 0;
+
+fun refresh_callback() {
+    global.cuadro = cuadro + 1;
+    global.angulo = angulo + 0.16;       # ~1,3 vueltas por segundo
+    img = perro[Math.Int(cuadro / 5) % 2].Rotate(angulo);
+    perro_sprite.SetImage(img);
+    perro_sprite.SetPosition(cx - img.GetWidth() / 2, cy - 30 - img.GetHeight() / 2, 0);
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+# ---- Contraseña del disco cifrado y preguntas ----
+pregunta_sprite = Sprite();
+respuesta_sprite = Sprite();
+
+fun mostrar(texto_pregunta, texto_respuesta) {
+    p = Image.Text(texto_pregunta, 0.95, 0.90, 0.83);
+    pregunta_sprite.SetImage(p);
+    pregunta_sprite.SetPosition(cx - p.GetWidth() / 2, cy + 190, 2);
+    pregunta_sprite.SetOpacity(1);
+    r = Image.Text(texto_respuesta, 0.88, 0.46, 0.17);
+    respuesta_sprite.SetImage(r);
+    respuesta_sprite.SetPosition(cx - r.GetWidth() / 2, cy + 220, 2);
+    respuesta_sprite.SetOpacity(1);
+}
+
+fun display_password_callback(prompt, bullets) {
+    puntos = "";
+    for (i = 0; i < bullets; i++)
+        puntos = puntos + "●";
+    if (prompt == "")
+        prompt = "Contraseña";
+    mostrar(prompt, puntos + " ");
+}
+
+fun display_question_callback(prompt, entry) {
+    mostrar(prompt, entry + " ");
+}
+
+fun display_normal_callback() {
+    pregunta_sprite.SetOpacity(0);
+    respuesta_sprite.SetOpacity(0);
+}
+
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetDisplayQuestionFunction(display_question_callback);
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+
+# ---- Mensajes del sistema (por ejemplo, avisos de chequeo de disco) ----
+mensaje_sprite = Sprite();
+fun message_callback(texto) {
+    m = Image.Text(texto, 0.75, 0.69, 0.63);
+    mensaje_sprite.SetImage(m);
+    mensaje_sprite.SetPosition(cx - m.GetWidth() / 2, Window.GetY() + Window.GetHeight() - 60, 2);
+}
+Plymouth.SetMessageFunction(message_callback);

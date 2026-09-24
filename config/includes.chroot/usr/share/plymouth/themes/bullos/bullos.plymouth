@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=BullOS
+Description=Bull terrier girando detrás de su cola
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/bullos
+ScriptFile=/usr/share/plymouth/themes/bullos/bullos.script

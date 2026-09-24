@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+<g id="bull">
+  <!-- Bull terrier de frente -->
+  <g stroke="#16110D" stroke-width="5" stroke-linejoin="round">
+    <!-- orejas -->
+    <path fill="#F3E6D3" d="M88 74 L66 12 L118 50 Z"/>
+    <path fill="#F3E6D3" d="M168 74 L190 12 L138 50 Z"/>
+    <!-- cabeza ovalada -->
+    <path fill="#F3E6D3" d="M128 34 C174 34 190 82 186 130 C182 192 160 238 128 238 C96 238 74 192 70 130 C66 82 82 34 128 34 Z"/>
+  </g>
+  <!-- interior de las orejas -->
+  <path fill="#E0762B" d="M88 64 L73 24 L109 52 Z"/>
+  <path fill="#E0762B" d="M168 64 L183 24 L147 52 Z"/>
+  <!-- mancha sobre el ojo izquierdo del perro (a la derecha para quien mira) -->
+  <ellipse fill="#E0762B" cx="153" cy="108" rx="25" ry="31" transform="rotate(18 153 108)"/>
+  <!-- ojos triangulares -->
+  <path fill="#16110D" d="M90 101 L119 110 L100 121 Z"/>
+  <path fill="#16110D" d="M166 101 L137 110 L156 121 Z"/>
+  <!-- nariz y boca -->
+  <path fill="#16110D" d="M110 202 Q128 192 146 202 Q148 216 128 221 Q108 216 110 202 Z"/>
+  <path fill="none" stroke="#16110D" stroke-width="4" stroke-linecap="round" d="M128 221 L128 229 M116 231 Q128 236 140 231"/>
+</g>
+</svg>

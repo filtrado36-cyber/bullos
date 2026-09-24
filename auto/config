@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+lb config noauto \
+  --distribution trixie \
+  --architectures amd64 \
+  --archive-areas "main contrib non-free non-free-firmware" \
+  --binary-images iso-hybrid \
+  --debian-installer none \
+  --iso-application "BullOS" \
+  --iso-volume "BullOS" \
+  --iso-publisher "BullOS Project" \
+  --image-name "bullos" \
+  --bootappend-live "boot=live components quiet splash hostname=bullos username=usuario locales=es_ES.UTF-8 keyboard-layouts=es timezone=America/Argentina/Buenos_Aires" \
+  "${@}"
