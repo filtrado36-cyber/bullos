@@ -13,7 +13,28 @@
   <img src="docs/arranque.gif" width="200" alt="Animación de arranque: el bull terrier gira persiguiéndose la cola">
 </p>
 
+<p align="center">
+  <a href="https://sourceforge.net/projects/bullos/files/0.1/bullos-amd64.hybrid.iso/download"><b>⬇️ Descargar BullOS 0.1 (ISO, 2.7 GB)</b></a>
+</p>
+
 ---
+
+## Descargar
+
+| Versión | Archivo | SHA-256 |
+|---|---|---|
+| 0.1 | [bullos-amd64.hybrid.iso](https://sourceforge.net/projects/bullos/files/0.1/bullos-amd64.hybrid.iso/download) (2.7 GB, amd64) | `c771be69b8f089d655eec274317fac315727fb6b825eb3f354b9ff812f0d56b2` |
+
+Todas las versiones están en [SourceForge](https://sourceforge.net/projects/bullos/files/).
+Para verificar la descarga:
+
+```sh
+shasum -a 256 bullos-amd64.hybrid.iso    # macOS
+sha256sum bullos-amd64.hybrid.iso        # Linux
+```
+
+Grabala en un USB con [balenaEtcher](https://etcher.balena.io/) y arrancá la PC desde el USB.
+La sesión de prueba abre la Bienvenida con el botón **Instalar BullOS**.
 
 ## ¿Por qué BullOS?
 
